@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="R3A — Rapid Research Reproducibility Assistant. Analyze Methods sections from research papers and generate reproducibility checklists, extract steps, and identify missing information." />
+  <meta name="keywords" content="reproducibility, research methods, scientific reproducibility, methods analysis, checklist, capstone" />
+  <meta name="author" content="R3A Project" />
+  <meta name="theme-color" content="#0a0e27" />
+  <title>R3A — Rapid Research Reproducibility Assistant</title>
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="bg-orb bg-orb--cyan" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb--purple" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb--amber" aria-hidden="true"></div>
+
+  <div class="app-wrapper">
+
+    <!-- ===== HERO ===== -->
+    <header class="hero">
+      <div class="hero__badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Capstone Project
+      </div>
+      <h1 class="hero__title">R3A</h1>
+      <p class="hero__subtitle">
+        Rapid Research Reproducibility Assistant — Analyze Methods sections and assess reproducibility in seconds.
+      </p>
+    </header>
+
+    <!-- ===== INPUT SECTION ===== -->
+    <section class="input-section glass-card" aria-label="Methods Input">
+      <div class="input-section__header">
+        <label class="input-section__label" for="methods-input">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Paste Your Methods Section
+        </label>
+      </div>
+
+      <div class="textarea-wrapper">
+        <textarea
+          id="methods-input"
+          class="methods-input"
+          placeholder="Paste the Methods section from a research paper here...&#10;&#10;Example: Cells were cultured in DMEM (Gibco, cat# 11965092) supplemented with 10% FBS at 37°C in 5% CO2. After 24 hours, cells were treated with 10 µM doxorubicin for 48 hours..."
+          aria-describedby="char-count"
+          spellcheck="false"
+        ></textarea>
+        <span id="char-count" class="char-count">0 characters</span>
+      </div>
+
+      <div class="btn-row">
+        <button id="analyze-btn" class="btn btn--primary" disabled aria-label="Analyze Methods text">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="btn__text">Analyze Methods</span>
+        </button>
+        <button id="sample-btn" class="btn btn--ghost" aria-label="Load sample Methods text">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+          <span class="btn__text">Load Sample</span>
+        </button>
+        <button id="clear-btn" class="btn btn--ghost" aria-label="Clear input and results">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <span class="btn__text">Clear</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== RESULTS SECTION ===== -->
+    <section id="results-section" class="results-section" aria-label="Analysis Results">
+
+      <!-- Summary Stats -->
+      <div class="summary-stats">
+        <div class="stat-card">
+          <div class="stat-card__value stat-card__value--cyan" id="stat-steps">0</div>
+          <div class="stat-card__label">Steps Extracted</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value stat-card__value--green" id="stat-present">0</div>
+          <div class="stat-card__label">Present</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value stat-card__value--red" id="stat-absent">0</div>
+          <div class="stat-card__label">Absent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value stat-card__value--amber" id="stat-score">0%</div>
+          <div class="stat-card__label">Score</div>
+        </div>
+      </div>
+
+      <!-- Score Ring -->
+      <div class="score-ring-container">
+        <div class="score-ring">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle class="score-ring__bg" cx="70" cy="70" r="58" />
+            <circle class="score-ring__fill" id="score-ring-fill" cx="70" cy="70" r="58" />
+          </svg>
+          <div class="score-ring__text">
+            <span class="score-ring__value" id="score-ring-value">0%</span>
+            <span class="score-ring__label">Score</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs" role="tablist" aria-label="Results tabs">
+        <button class="tab-btn active" data-tab="steps" role="tab" aria-selected="true" aria-controls="panel-steps" id="tab-steps">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Extracted Steps
+          <span class="tab-count" id="tab-count-steps">0</span>
+        </button>
+        <button class="tab-btn" data-tab="checklist" role="tab" aria-selected="false" aria-controls="panel-checklist" id="tab-checklist">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Checklist
+          <span class="tab-count" id="tab-count-checklist">0</span>
+        </button>
+        <button class="tab-btn" data-tab="missing" role="tab" aria-selected="false" aria-controls="panel-missing" id="tab-missing">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Missing Info
+          <span class="tab-count" id="tab-count-missing">0</span>
+        </button>
+      </div>
+
+      <!-- Tab Panels -->
+      <div class="tab-panel active" id="panel-steps" role="tabpanel" aria-labelledby="tab-steps">
+        <ul class="steps-list" id="steps-list"></ul>
+      </div>
+
+      <div class="tab-panel" id="panel-checklist" role="tabpanel" aria-labelledby="tab-checklist">
+        <div class="checklist-grid" id="checklist-grid"></div>
+      </div>
+
+      <div class="tab-panel" id="panel-missing" role="tabpanel" aria-labelledby="tab-missing">
+        <div class="prompts-list" id="prompts-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== EXPORT BAR ===== -->
+    <div id="export-bar" class="export-bar" aria-label="Export options">
+      <span class="export-bar__info">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export your analysis results
+      </span>
+      <div class="export-bar__actions">
+        <button id="download-json-btn" class="btn btn--ghost btn--small" aria-label="Download results as JSON">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download JSON
+        </button>
+        <button id="copy-json-btn" class="btn btn--ghost btn--small" aria-label="Copy results as JSON to clipboard">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy JSON
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+      <p class="footer__text">
+        <strong>R3A</strong> — Rapid Research Reproducibility Assistant &nbsp;·&nbsp; Capstone Project 2026
+      </p>
+      <p class="footer__text" style="margin-top: 0.25rem; font-size: 0.75rem;">
+        Built to improve transparency and reproducibility in scientific research.
+      </p>
+    </footer>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Scripts (order matters: dependencies first) -->
+  <script src="js/parser.js"></script>
+  <script src="js/checklist.js"></script>
+  <script src="js/missing.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
